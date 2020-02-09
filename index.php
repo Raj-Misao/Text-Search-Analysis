@@ -22,7 +22,7 @@
   <link href="css/landing-page.min.css" rel="stylesheet">
 </head>
 <body>
-  <header class="masthead text-white text-center" style="padding-top: 2rem;">
+  <header class="masthead text-white text-center" style="padding-top: 0rem;">
     <div class="overlay"></div>
     <div class="container-fluid">
       <div class="row">
@@ -37,6 +37,9 @@
               <div class="col-md-6">
                 <form action="#" method="POST" class="col-md-12">
                   <div class="row">
+                    <div class="col-md-12">
+                      <input type="text" name="find_examption" value="<?php echo (isset($_POST['find_examption'])?$_POST['find_examption']:'');?>" id="find_examption" class="form-control form-control-lg" placeholder="Enter EXP Word...">
+                    </div>
                     <div class="col-md-10">
                       <input type="text" name="find_word" value="<?php echo (isset($_POST['find_word'])?$_POST['find_word']:'');?>" id="find_word" class="form-control form-control-lg" placeholder="Enter Search Word...">
                     </div>
@@ -44,9 +47,7 @@
                       <button type="submit" name="btn_submit" class="btn btn-block btn-lg btn-primary">Check</button>
                     </div>
                     <div class="col-md-12" style="margin-top:2%;">
-                      <textarea name="in_text" id="in_text" class="form-control form-control-lg" rows="18" cols="100">
-                      <?php echo (isset($_POST['in_text'])?$_POST['in_text']:'');?>
-                      </textarea> 
+                      <textarea name="in_text" id="in_text" class="form-control form-control-lg" rows="18" cols="100"><?php echo (isset($_POST['in_text'])?$_POST['in_text']:'');?></textarea> 
                     </div>
                   </div>
                 </form>
@@ -58,9 +59,9 @@
                       </div>
                 
                 <div class="col-md-12" style="margin-top:2%;">
-                <textarea  class="form-control form-control-lg" rows="18" cols="100">
+                
                     <?php
-                      if(isset($_POST['btn_submit'])){
+                      if(isset($_POST['btn_submit'])){$result = [];$resultcheck = [];
                         if(!empty($_POST['in_text']) && !empty($_POST['find_word']))
                         {
                           function multiexplode ($delimiters,$string) {
@@ -68,44 +69,67 @@
                               $launch = explode($delimiters[0], $ready);
                               return  $launch;
                           }
-                          $break_condition = ['.',',']; ////////////////////////////////////////////////
-                          $exception_condition = ['Mr']; ////////////////////////////////////////////////
+
+                          $break_condition = [' ']; ////////////////////////////////////////////////
+                          $exception_data = isset($_POST['find_examption'])?explode('|',$_POST['find_examption']):''; ////////////////////////////////////////////////
+                          $find_data = explode('|',$_POST['find_word']);
                           $data = multiexplode($break_condition,$_POST['in_text']);
-                          $result = [];
-                          foreach($data as $key=>$each_santence)
+                          $santance = '';
+                          $flag = 0;
+                         
+                          foreach($data as $key=>$each_santence_word)
                           {
-                            $find_data = explode('|',$_POST['find_word']);
-                            foreach($find_data as $find_word){
-                              if(stristr($each_santence, trim($find_word)))
-                              {
-                                foreach($exception_condition as $each_exception)
-                                {
-                                  if(isset($data[$key-1]) && (stristr($data[$key-1], $each_exception))){
-                                    //echo 'MR Find';
-                                    array_push($result,trim($data[$key-1].'.'.$each_santence));
-                                  }
-                                  else{
-                                    //echo 'MR NOt Find';
-                                    array_push($result,trim($each_santence));
-                                  }
-                                }
-                                //array_push($result,$each_santence);
-                              }
+                            $each_santence_word = trim($each_santence_word);
+                            array_push($resultcheck,$each_santence_word);
+                            if(in_array($each_santence_word, $find_data))
+                            {
+                              $flag = 1;
                             }
+                            if(!in_array($each_santence_word, $exception_data) && strpos($each_santence_word,"."))
+                            {
+
+                              if ($flag == 1){
+                                //$santance .= substr($each_santence_word, 0, strpos($each_santence_word, '.')).' ';
+                                $santance .= $each_santence_word;
+                                array_push($result,ltrim($santance,'.'));
+                                $santance = trim(strrchr($each_santence_word,'.')) != ''?trim(strrchr($each_santence_word,'.')):'';
+                                $flag = 0;
+                                }else {
+                                  $santance = trim(strrchr($each_santence_word,'.')) != ''?trim(strrchr($each_santence_word,'.')).' ':'';
+                              }
+                              //$santance .= $each_santence_word;
+                            }else{
+                              $santance .= $each_santence_word.' ';
+                            }
+                           // if (in_array($each_santence_word, $exception_data)){
+                             // array_push($result,$each_santence_word);
+                           // }
+                            
                           }
 
-                          if(count($result) > 0)
-                          {
-                            foreach($result as $each_result){
-                              echo $each_result.'&#013; &#010';
+                          // if(count($result) > 0)
+                          // {
+                          //   foreach($result as $each_result){
+                          //     echo $each_result.'&#013; &#010';
                               
-                            }
-                          }
+                          //   }
+                          // }
                          // print_r($result);
                         }
                       }
                     ?>
-                </textarea>
+                <textarea  class="form-control form-control-lg" rows="18" cols="100"><?php
+                foreach($result as $eachResult){
+                  echo $eachResult.'&#013';
+                }
+                // if(!empty($result))
+                // {
+                // print_r($result);
+                // print_r($resultcheck);
+                // print_r($exception_data);
+                // print_r($santance);
+                // }
+                ?></textarea>
                 </div>
                 </div>
               </div>
