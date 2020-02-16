@@ -61,7 +61,8 @@
                 <div class="col-md-12" style="margin-top:2%;">
                 
                     <?php
-                      if(isset($_POST['btn_submit'])){$result = [];$resultcheck = [];
+                    $result = [];$resultcheck = [];
+                      if(isset($_POST['btn_submit'])){
                         if(!empty($_POST['in_text']) && !empty($_POST['find_word']))
                         {
                           function multiexplode ($delimiters,$string) {
@@ -71,8 +72,25 @@
                           }
 
                           $break_condition = [' ']; ////////////////////////////////////////////////
-                          $exception_data = isset($_POST['find_examption'])?explode('|',$_POST['find_examption']):''; ////////////////////////////////////////////////
+
+                          $exception_data = isset($_POST['find_examption'])?explode('|',$_POST['find_examption']):[]; ////////////////////////////////////////////////
+                          $exception_data1 = [];
+                          if(count($exception_data)>0){
+                            foreach($exception_data as $exception_dataTrimLower){
+                              $exception_data1[] = strtolower(trim($exception_dataTrimLower));
+                            }
+                            $exception_data = $exception_data1;
+                          }
+                         
                           $find_data = explode('|',$_POST['find_word']);
+                          $find_data1 = [];
+                          if(count($find_data)>0){
+                            foreach($find_data as $find_dataTrimLower){
+                              $find_data1[] = strtolower(rtrim(trim($find_dataTrimLower),'.'));
+                            }
+                            $find_data = $find_data1;
+                          }
+
                           $data = multiexplode($break_condition,$_POST['in_text']);
                           $santance = '';
                           $flag = 0;
@@ -80,15 +98,17 @@
                           foreach($data as $key=>$each_santence_word)
                           {
                             $each_santence_word = trim($each_santence_word);
-                            array_push($resultcheck,$each_santence_word);
-                            if(in_array($each_santence_word, $find_data))
+                           // array_push($resultcheck,$each_santence_word);
+                            if(in_array(strtolower(rtrim($each_santence_word,'.')), $find_data))
                             {
+                              
                               $flag = 1;
                             }
-                            if(!in_array($each_santence_word, $exception_data) && strpos($each_santence_word,"."))
+                            if(!in_array(strtolower($each_santence_word), $exception_data) && strpos($each_santence_word,"."))
                             {
-
+                              
                               if ($flag == 1){
+                                //array_push($resultcheck,"Rpp");
                                 //$santance .= substr($each_santence_word, 0, strpos($each_santence_word, '.')).' ';
                                 $santance .= $each_santence_word;
                                 array_push($result,ltrim($santance,'.'));
@@ -125,7 +145,7 @@
                 // if(!empty($result))
                 // {
                 // print_r($result);
-                // print_r($resultcheck);
+                 //print_r($resultcheck);
                 // print_r($exception_data);
                 // print_r($santance);
                 // }
